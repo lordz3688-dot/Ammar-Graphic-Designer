@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عمار | تواصل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #1a1a1a;
+            --accent: #ff6b35;
+            --accent2: #ffd166;
+            --text: #f0f0f0;
+            --muted: #aaaaaa;
+            --border: #2a2a2a;
+            --green: #25d366;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ============ مؤشر مخصص ============ */
+        .cursor {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease, background 0.3s ease;
+        }
+        .cursor.hover {
+            width: 55px;
+            height: 55px;
+            border-color: var(--accent2);
+            background: rgba(255, 107, 53, 0.08);
+        }
+        .cursor-dot.hover {
+            width: 10px;
+            height: 10px;
+            background: var(--accent2);
+        }
+        .cursor.hover-input {
+            width: 8px;
+            height: 30px;
+            border-radius: 4px;
+            border-color: var(--text);
+            background: transparent;
+            mix-blend-mode: normal;
+        }
+        .cursor-dot.hover-input {
+            opacity: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: none;
+        }
+        /* استثناء للأجهزة اللمسية */
+        @media (pointer: coarse) {
+            body {
+                cursor: auto;
+            }
+            .cursor, .cursor-dot {
+                display: none;
+            }
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            bottom: -15%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(37, 211, 102, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ============ شريط التنقل ============ */
+        nav {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        .logo:hover {
+            transform: scale(1.06);
+            filter: brightness(1.3);
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            position: relative;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            padding: 0.4rem 0;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text);
+        }
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .menu-toggle:hover {
+            transform: rotate(90deg);
+        }
+
+        /* ============ قسم التواصل ============ */
+        .contact-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 1100px;
+            padding: 2rem;
+            position: relative;
+            z-index: 5;
+        }
+        .contact-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            animation: cardEntry 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        @keyframes cardEntry {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .contact-card:hover {
+            border-color: rgba(255, 107, 53, 0.5);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 107, 53, 0.15);
+            transform: translateY(-6px);
+        }
+        .contact-card h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+        @keyframes titlePulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.85;
+            }
+        }
+        .contact-card h2 span {
+            background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% center;
+            }
+            50% {
+                background-position: 100% center;
+            }
+        }
+        .contact-card .sub {
+            text-align: center;
+            color: var(--muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            transition: color 0.4s ease;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #cccccc;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            transform-origin: right;
+        }
+        .form-group:focus-within label {
+            color: var(--accent);
+            transform: translateX(-4px);
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            outline: none;
+            position: relative;
+        }
+        .form-group input:hover,
+        .form-group textarea:hover {
+            border-color: #444;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.08), 0 8px 25px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        /* تأثير تموج عند الضغط على الحقل */
+        .form-group input:focus::placeholder,
+        .form-group textarea:focus::placeholder {
+            opacity: 0.5;
+            transform: translateX(10px);
+            transition: all 0.4s ease;
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            transition: all 0.4s ease;
+        }
+        .form-group textarea {
+            min-height: 130px;
+        }
+
+        /* ============ زر الإرسال ============ */
+        .btn-send {
+            width: 100%;
+            padding: 1rem;
+            background: var(--green);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* تأثير موجة عند hover */
+        .btn-send::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        .btn-send:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+        .btn-send:hover {
+            background: #1ebe5b;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(37, 211, 102, 0.35);
+        }
+        .btn-send:active {
+            transform: translateY(-1px) scale(0.97);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.25);
+            transition: all 0.1s ease;
+        }
+        .btn-send i {
+            font-size: 1.3rem;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+        }
+        .btn-send:hover i {
+            transform: scale(1.25) rotate(-8deg);
+            animation: iconBounce 0.6s ease;
+        }
+        @keyframes iconBounce {
+            0%, 100% {
+                transform: scale(1.25) rotate(-8deg);
+            }
+            50% {
+                transform: scale(1.4) rotate(-8deg);
+            }
+        }
+        .btn-send span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============ رسالة واتساب ============ */
+        .whatsapp-note {
+            text-align: center;
+            margin-top: 1.2rem;
+            color: var(--muted);
+            font-size: 0.85rem;
+            transition: all 0.4s ease;
+            animation: floatNote 3s ease-in-out infinite;
+        }
+        @keyframes floatNote {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+        .whatsapp-note i {
+            color: var(--green);
+            margin-left: 0.3rem;
+            animation: lockPulse 2s ease-in-out infinite;
+        }
+        @keyframes lockPulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* ============ تذييل ============ */
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--muted);
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 5;
+            transition: color 0.4s ease;
+        }
+        footer:hover {
+            color: var(--text);
+        }
+
+        /* ============ تجاوب ============ */
+        @media (max-width: 768px) {
+            .contact-card {
+                padding: 2rem 1.5rem;
+            }
+            .contact-card h2 {
+                font-size: 1.7rem;
+            }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                background: var(--surface);
+                position: absolute;
+                top: 70px;
+                left: 1rem;
+                right: 1rem;
+                padding: 1.5rem;
+                border-radius: 16px;
+                border: 1px solid var(--border);
+                gap: 1rem;
+                animation: menuSlide 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            }
+            @keyframes menuSlide {
+                from {
+                    opacity: 0;
+                    transform: translateY(-15px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .nav-links.show {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            nav {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============ المؤشر المخصص ============ -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- ============ شريط التنقل ============ -->
+    <nav>
+        <div class="logo" data-cursor="hover">عمار | مصمم جرافيك</div>
+        <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('show')">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-links">
+            <li><a href="index.html" data-cursor="hover">عنّي</a></li>
+            <li><a href="works.html" data-cursor="hover">أعمالي</a></li>
+            <li><a href="contact.html" class="active" data-cursor="hover">تواصل</a></li>
+        </ul>
+    </nav>
+
+    <!-- ============ قسم التواصل ============ -->
+    <section class="contact-section">
+        <div class="contact-card">
+            <h2>تواصل <span>معي</span></h2>
+            <p class="sub">املأ النموذج وسيتم إرسال رسالتك مباشرة إلى واتساب</p>
+
+            <form id="contactForm" onsubmit="sendToWhatsApp(event)">
+                <div class="form-group">
+                    <label for="name">الاسم</label>
+                    <input type="text" id="name" placeholder="أدخل اسمك الكامل" required data-cursor="input">
+                </div>
+                <div class="form-group">
+                    <label for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" placeholder="example@email.com" required data-cursor="input">
+                </div>
+                <div class="form-group">
+                    <label for="message">الرسالة</label>
+                    <textarea id="message" placeholder="اكتب رسالتك هنا..." required data-cursor="input"></textarea>
+                </div>
+                <button type="submit" class="btn-send" data-cursor="hover">
+                    <i class="fab fa-whatsapp"></i> <span>إرسال عبر واتساب</span>
+                </button>
+            </form>
+            <p class="whatsapp-note">
+                <i class="fas fa-lock"></i> يتم فتح محادثة واتساب مباشرة برسالتك
+            </p>
+        </div>
+    </section>
+
+    <!-- ============ تذييل ============ -->
+    <footer>
+        © 2025 جميع الحقوق محفوظة | صُمم بكل حب 🎨
+    </footer>
+
+    <!-- ============ سكريبت المؤشر المخصص ============ -->
+    <script>
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        // عناصر توسع المؤشر
+        const hoverElements = document.querySelectorAll('[data-cursor="hover"], a, button, .logo, .menu-toggle');
+        const inputElements = document.querySelectorAll('[data-cursor="input"], input, textarea');
+
+        hoverElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
+                cursorDot.classList.add('hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+                cursorDot.classList.remove('hover');
+            });
+        });
+
+        inputElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover-input');
+                cursorDot.classList.add('hover-input');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover-input');
+                cursorDot.classList.remove('hover-input');
+            });
+        });
+
+        // إخفاء المؤشر عند الخروج من النافذة
+        document.addEventListener('mouseleave', () => {
+            cursor.style.opacity = '0';
+            cursorDot.style.opacity = '0';
+        });
+        document.addEventListener('mouseenter', () => {
+            cursor.style.opacity = '1';
+            cursorDot.style.opacity = '1';
+        });
+    </script>
+
+    <!-- ============ سكريبت واتساب ============ -->
+    <script>
+        function sendToWhatsApp(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+
+            const fullMessage = `مرحباً، أنا ${name}%0Aالبريد الإلكتروني: ${email}%0A%0A${message}`;
+            const phoneNumber = '967770561991';
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${fullMessage}`;
+            window.open(whatsappURL, '_blank');
+        }
+    </script>
+
+</body>
+</html>

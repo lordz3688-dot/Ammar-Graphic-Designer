@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عمار | أعمالي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0d0d0d;
+            --surface: #1a1a1a;
+            --accent: #ff6b35;
+            --accent2: #ffd166;
+            --text: #f0f0f0;
+            --muted: #aaaaaa;
+            --border: #2a2a2a;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ============ مؤشر مخصص ============ */
+        .cursor {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+        .cursor-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s ease, height 0.2s ease, background 0.3s ease;
+        }
+        .cursor.hover {
+            width: 55px;
+            height: 55px;
+            border-color: var(--accent2);
+            background: rgba(255, 107, 53, 0.08);
+        }
+        .cursor-dot.hover {
+            width: 10px;
+            height: 10px;
+            background: var(--accent2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            cursor: none;
+        }
+        @media (pointer: coarse) {
+            body {
+                cursor: auto;
+            }
+            .cursor, .cursor-dot {
+                display: none;
+            }
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: -20%;
+            right: -15%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(255, 209, 102, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ============ شريط التنقل ============ */
+        nav {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            cursor: pointer;
+        }
+        .logo:hover {
+            transform: scale(1.06);
+            filter: brightness(1.3);
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            position: relative;
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+            padding: 0.4rem 0;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text);
+        }
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .menu-toggle:hover {
+            transform: rotate(90deg);
+        }
+
+        /* ============ رأس الصفحة ============ */
+        .page-header {
+            text-align: center;
+            padding: 2rem 1rem 0.5rem;
+            position: relative;
+            z-index: 5;
+            animation: headerEntry 0.9s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            opacity: 0;
+            transform: translateY(25px);
+        }
+        @keyframes headerEntry {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-header h2 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .page-header h2 span {
+            background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent));
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+        .page-header .subtitle {
+            color: var(--muted);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: subtitleGlow 3s ease-in-out infinite;
+        }
+        @keyframes subtitleGlow {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* ============ أزرار التصنيفات ============ */
+        .category-filters {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            padding: 1.5rem 1rem 0.5rem;
+            position: relative;
+            z-index: 5;
+            max-width: 900px;
+            margin: 0 auto;
+            animation: filtersEntry 0.9s 0.15s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes filtersEntry {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .cat-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.7rem 1.6rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-family: inherit;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+        .cat-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+            background: #222;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .cat-btn:active {
+            transform: translateY(-1px) scale(0.96);
+            transition: all 0.1s ease;
+        }
+        .cat-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 6px 22px rgba(255, 107, 53, 0.4);
+            transform: translateY(-2px);
+        }
+        .cat-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ============ تجميعات الأعمال ============ */
+        .category-section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1rem 2rem 2.5rem;
+            position: relative;
+            z-index: 5;
+            animation: sectionEntry 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) both;
+        }
+        @keyframes sectionEntry {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .category-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            color: var(--text);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            transition: transform 0.3s ease;
+        }
+        .category-section h3:hover {
+            transform: translateX(-6px);
+        }
+        .category-section h3 i {
+            color: var(--accent);
+            font-size: 1.3rem;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+        }
+        .category-section h3:hover i {
+            transform: scale(1.25) rotate(-10deg);
+            color: var(--accent2);
+        }
+        .category-section h3 span {
+            color: var(--accent);
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.3rem;
+        }
+
+        /* ============ بطاقات الأعمال ============ */
+        .gallery-item {
+            background: var(--surface);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            cursor: pointer;
+            aspect-ratio: 1 / 1;
+            opacity: 0;
+            animation: cardReveal 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(40px) scale(0.92); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .category-grid .gallery-item:nth-child(1) { animation-delay: 0.05s; }
+        .category-grid .gallery-item:nth-child(2) { animation-delay: 0.15s; }
+        .category-grid .gallery-item:nth-child(3) { animation-delay: 0.25s; }
+        .category-grid .gallery-item:nth-child(4) { animation-delay: 0.35s; }
+        .category-grid .gallery-item:nth-child(5) { animation-delay: 0.45s; }
+        .category-grid .gallery-item:nth-child(6) { animation-delay: 0.55s; }
+
+        .gallery-item:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 107, 53, 0.2);
+            border-color: var(--accent);
+        }
+        .gallery-item:active {
+            transform: translateY(-4px) scale(0.97);
+            transition: all 0.1s ease;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+        .gallery-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 20%, transparent 60%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1.5rem;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            pointer-events: none;
+        }
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+        .gallery-overlay h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+            transform: translateY(15px);
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) 0.05s;
+        }
+        .gallery-item:hover .gallery-overlay h4 {
+            transform: translateY(0);
+        }
+        .gallery-overlay span {
+            font-size: 0.8rem;
+            color: var(--accent2);
+            letter-spacing: 1px;
+            transform: translateY(15px);
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) 0.1s;
+        }
+        .gallery-item:hover .gallery-overlay span {
+            transform: translateY(0);
+        }
+
+        /* ============ Lightbox ============ */
+        .lightbox-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.94);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .lightbox-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .lightbox-overlay img {
+            max-width: 85vw;
+            max-height: 75vh;
+            border-radius: 20px;
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7);
+            object-fit: contain;
+        }
+        .lightbox-overlay.active img {
+            transform: scale(1);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            z-index: 10001;
+        }
+        .lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: rotate(90deg) scale(1.1);
+        }
+        .lightbox-caption {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.5s ease 0.2s;
+        }
+        .lightbox-overlay.active .lightbox-caption {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.35s ease;
+            z-index: 10001;
+        }
+        .lightbox-nav:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .lightbox-prev {
+            left: 2rem;
+        }
+        .lightbox-next {
+            right: 2rem;
+        }
+        .lightbox-counter {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            z-index: 10001;
+        }
+        .lightbox-overlay * {
+            cursor: auto;
+        }
+
+        /* ============ تذييل ============ */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+            font-size: 0.85rem;
+            position: relative;
+            z-index: 5;
+            transition: color 0.4s ease;
+        }
+        footer:hover {
+            color: var(--text);
+        }
+
+        /* ============ تجاوب ============ */
+        @media (max-width: 768px) {
+            .page-header h2 { font-size: 2rem; }
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                background: var(--surface);
+                position: absolute;
+                top: 70px;
+                left: 1rem;
+                right: 1rem;
+                padding: 1.5rem;
+                border-radius: 16px;
+                border: 1px solid var(--border);
+                gap: 1rem;
+                animation: menuSlide 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            }
+            @keyframes menuSlide {
+                from { opacity: 0; transform: translateY(-15px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .nav-links.show { display: flex; }
+            .menu-toggle { display: block; }
+            nav { flex-wrap: wrap; }
+            .category-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.7rem;
+            }
+            .category-section { padding: 1rem 1rem 2rem; }
+            .cat-btn { padding: 0.55rem 1.2rem; font-size: 0.8rem; }
+            .lightbox-nav { width: 38px; height: 38px; font-size: 1rem; }
+            .lightbox-prev { left: 0.8rem; }
+            .lightbox-next { right: 0.8rem; }
+            .lightbox-close { top: 1rem; left: 1rem; width: 40px; height: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <nav>
+        <div class="logo" data-cursor="hover">عمار | مصمم جرافيك</div>
+        <button class="menu-toggle" onclick="document.querySelector('.nav-links').classList.toggle('show')" data-cursor="hover">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-links">
+            <li><a href="index.html" data-cursor="hover">عنّي</a></li>
+            <li><a href="works.html" class="active" data-cursor="hover">أعمالي</a></li>
+            <li><a href="contact.html" data-cursor="hover">تواصل</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h2>معرض <span>الأعمال</span></h2>
+        <p class="subtitle">• Portfolio •</p>
+    </div>
+
+    <div class="category-filters">
+        <button class="cat-btn active" onclick="filterCategory('all', this)" data-cursor="hover"><span>الكل</span></button>
+        <button class="cat-btn" onclick="filterCategory('branding', this)" data-cursor="hover"><span>هوية بصرية</span></button>
+        <button class="cat-btn" onclick="filterCategory('posters', this)" data-cursor="hover"><span>ملصقات</span></button>
+        <button class="cat-btn" onclick="filterCategory('social', this)" data-cursor="hover"><span>سوشيال ميديا</span></button>
+        <button class="cat-btn" onclick="filterCategory('ui', this)" data-cursor="hover"><span>واجهات</span></button>
+    </div>
+
+    <!-- ========= قسم الهوية البصرية ========= -->
+    <section class="category-section" data-category="branding">
+        <h3><i class="fas fa-palette"></i> <span>الهوية</span> البصرية</h3>
+        <div class="category-grid">
+            <!-- 👇 البطاقة الأولى: لاحظ onclick يحتوي على مسارين للصورة -->
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(0, 'branding')">
+                <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=400&fit=crop" alt="شعار">
+                <div class="gallery-overlay"><h4>تصميم شعار</h4><span>Logo</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(1, 'branding')">
+                <img src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=400&h=400&fit=crop" alt="قرطاسية">
+                <div class="gallery-overlay"><h4>قرطاسية الشركة</h4><span>Stationery</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(2, 'branding')">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=400&fit=crop" alt="دليل الهوية">
+                <div class="gallery-overlay"><h4>دليل الهوية</h4><span>Brand Guidelines</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========= قسم الملصقات ========= -->
+    <section class="category-section" data-category="posters">
+        <h3><i class="fas fa-paint-brush"></i> <span>تصاميم</span> إعلانية</h3>
+        <div class="category-grid">
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(0, 'posters')">
+                <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=400&fit=crop" alt="ملصق">
+                <div class="gallery-overlay"><h4>ملصق إعلاني</h4><span>Poster</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(1, 'posters')">
+                <img src="https://images.unsplash.com/photo-1626785774573-4b799315345d?w=400&h=400&fit=crop" alt="بروشور">
+                <div class="gallery-overlay"><h4>بروشور تعريفي</h4><span>Brochure</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(2, 'posters')">
+                <img src="https://images.unsplash.com/photo-1581078426770-6d336e5de7bf?w=400&h=400&fit=crop" alt="بانر">
+                <div class="gallery-overlay"><h4>بانر خارجي</h4><span>Billboard</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========= قسم السوشيال ميديا ========= -->
+    <section class="category-section" data-category="social">
+        <h3><i class="fas fa-hashtag"></i> <span>السوشيال</span> ميديا</h3>
+        <div class="category-grid">
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(0, 'social')">
+                <img src="https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=400&h=400&fit=crop" alt="منشور">
+                <div class="gallery-overlay"><h4>منشور إنستغرام</h4><span>Instagram</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(1, 'social')">
+                <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=400&h=400&fit=crop" alt="ستوري">
+                <div class="gallery-overlay"><h4>ستوري انستغرام</h4><span>Story</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(2, 'social')">
+                <img src="https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=400&h=400&fit=crop" alt="غلاف">
+                <div class="gallery-overlay"><h4>غلاف فيسبوك</h4><span>Cover</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========= قسم واجهات المستخدم ========= -->
+    <section class="category-section" data-category="ui">
+        <h3><i class="fas fa-mobile-screen-button"></i> <span>واجهات</span> المستخدم</h3>
+        <div class="category-grid">
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(0, 'ui')">
+                <img src="https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=400&h=400&fit=crop" alt="تطبيق">
+                <div class="gallery-overlay"><h4>تطبيق جوال</h4><span>Mobile App</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(1, 'ui')">
+                <img src="https://images.unsplash.com/photo-1545235617-9465d2a55698?w=400&h=400&fit=crop" alt="موقع">
+                <div class="gallery-overlay"><h4>موقع إلكتروني</h4><span>Website</span></div>
+            </div>
+            <div class="gallery-item" data-cursor="hover"
+                 onclick="openLightbox(2, 'ui')">
+                <img src="https://images.unsplash.com/photo-1559028012-481c04fa702d?w=400&h=400&fit=crop" alt="لوحة تحكم">
+                <div class="gallery-overlay"><h4>لوحة تحكم</h4><span>Dashboard</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ Lightbox ============ -->
+    <div class="lightbox-overlay" id="lightbox">
+        <button class="lightbox-close" onclick="closeLightbox()">
+            <i class="fas fa-times"></i>
+        </button>
+        <span class="lightbox-counter" id="lightboxCounter"></span>
+        <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <img src="" alt="صورة مكبرة" id="lightboxImg">
+        <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+
+    <footer>
+        © 2025 جميع الحقوق محفوظة | صُمم بكل حب 🎨
+    </footer>
+
+    <script>
+        // ============ المؤشر المخصص ============
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            cursorDot.style.left = e.clientX + 'px';
+            cursorDot.style.top = e.clientY + 'px';
+        });
+
+        const hoverElements = document.querySelectorAll('[data-cursor="hover"], a, button, .logo, .menu-toggle, .gallery-item, .cat-btn');
+        hoverElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursor.classList.add('hover');
+                cursorDot.classList.add('hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursor.classList.remove('hover');
+                cursorDot.classList.remove('hover');
+            });
+        });
+
+        document.addEventListener('mouseleave', () => {
+            cursor.style.opacity = '0';
+            cursorDot.style.opacity = '0';
+        });
+        document.addEventListener('mouseenter', () => {
+            cursor.style.opacity = '1';
+            cursorDot.style.opacity = '1';
+        });
+
+        // ============ تصفية التصنيفات ============
+        function filterCategory(category, btn) {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const sections = document.querySelectorAll('.category-section');
+            if (category === 'all') {
+                sections.forEach((section, index) => {
+                    section.style.display = 'block';
+                    section.style.animation = 'none';
+                    section.offsetHeight;
+                    section.style.animation = `sectionEntry 0.7s ${index * 0.08}s cubic-bezier(0.25, 0.8, 0.25, 1) both`;
+                });
+            } else {
+                sections.forEach(section => {
+                    if (section.getAttribute('data-category') === category) {
+                        section.style.display = 'block';
+                        section.style.animation = 'none';
+                        section.offsetHeight;
+                        section.style.animation = 'sectionEntry 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) both';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            }
+        }
+
+        // ============ Lightbox ============
+        // مصفوفة الصور - عند إضافة صور جديدة، أضفها هنا بنفس النمط
+        const galleryData = {
+            branding: [
+                { src: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=1200&h=1200&fit=crop', caption: 'تصميم شعار - Logo' },
+                { src: 'https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=1200&h=1200&fit=crop', caption: 'قرطاسية الشركة - Stationery' },
+                { src: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&h=1200&fit=crop', caption: 'دليل الهوية - Brand Guidelines' },
+            ],
+            posters: [
+                { src: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=1200&h=1200&fit=crop', caption: 'ملصق إعلاني - Poster' },
+                { src: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=1200&h=1200&fit=crop', caption: 'بروشور تعريفي - Brochure' },
+                { src: 'https://images.unsplash.com/photo-1581078426770-6d336e5de7bf?w=1200&h=1200&fit=crop', caption: 'بانر خارجي - Billboard' },
+            ],
+            social: [
+                { src: 'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1200&h=1200&fit=crop', caption: 'منشور إنستغرام - Instagram' },
+                { src: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=1200&h=1200&fit=crop', caption: 'ستوري انستغرام - Story' },
+                { src: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=1200&h=1200&fit=crop', caption: 'غلاف فيسبوك - Cover' },
+            ],
+            ui: [
+                { src: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?w=1200&h=1200&fit=crop', caption: 'تطبيق جوال - Mobile App' },
+                { src: 'https://images.unsplash.com/photo-1545235617-9465d2a55698?w=1200&h=1200&fit=crop', caption: 'موقع إلكتروني - Website' },
+                { src: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=1200&h=1200&fit=crop', caption: 'لوحة تحكم - Dashboard' },
+            ]
+        };
+
+        let currentCategory = '';
+        let currentIndex = 0;
+
+        function openLightbox(index, category) {
+            currentCategory = category;
+            currentIndex = index;
+            const item = galleryData[category][index];
+            document.getElementById('lightboxImg').src = item.src;
+            document.getElementById('lightboxCaption').textContent = item.caption;
+            document.getElementById('lightboxCounter').textContent = `${index + 1} / ${galleryData[category].length}`;
+            document.getElementById('lightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function navigateLightbox(direction) {
+            const total = galleryData[currentCategory].length;
+            currentIndex = (currentIndex + direction + total) % total;
+            const item = galleryData[currentCategory][currentIndex];
+            document.getElementById('lightboxImg').src = item.src;
+            document.getElementById('lightboxCaption').textContent = item.caption;
+            document.getElementById('lightboxCounter').textContent = `${currentIndex + 1} / ${total}`;
+        }
+
+        document.getElementById('lightbox').addEventListener('click', function(e) {
+            if (e.target === this) closeLightbox();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') navigateLightbox(-1);
+            if (e.key === 'ArrowLeft') navigateLightbox(1);
+        });
+    </script>
+
+</body>
+</html>
